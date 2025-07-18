@@ -42,7 +42,8 @@ TEMPLATES = [
 ]
 
 # donation_platform/donation_platform/settings.py
-
+# WhiteNoise configuration
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware', # Essential for sessions (login/logout)
@@ -51,6 +52,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware', # Essential for user authentication
     'django.contrib.messages.middleware.MessageMiddleware', # Essential for Django's message framework
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+     'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 # donation_platform/donation_platform/settings.py
@@ -69,11 +71,12 @@ INSTALLED_APPS = [
 
 # donation_platform/donation_platform/settings.py
 
-DEBUG = True # Keep this True for development for now
+DEBUG = False # Keep this True for development for now
 
 ALLOWED_HOSTS = [
     '127.0.0.1', # For local development
     'localhost', # For local development
+    '.onrender.com',
 ]
 
 
@@ -94,7 +97,7 @@ import os
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static_project'), # Example: a 'static_project' folder at your project root
 ]
-
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 # donation_platform/donation_platform/settings.py
 
 # ... other settings ...
@@ -125,6 +128,12 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3', # This will create a db.sqlite3 file in your project root
     }
 }
+# Render-এ DATABASE_URL এনভায়রনমেন্ট ভেরিয়েবল সেট করা হবে
+if 'DATABASE_URL' in os.environ:
+    DATABASES['default'] = dj_database_url.config(
+        conn_max_age=600,
+        ssl_require=True
+    )
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
