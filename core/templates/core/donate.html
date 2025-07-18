@@ -1,0 +1,63 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Donate to {{ campaign.campaign_name }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0">Donate to "{{ campaign.campaign_name }}"</h3>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form.as_p }} {# Renders fields from DonationForm #}
+
+                    <div id="paymentDetails" class="mt-3 card card-body" style="display: none;">
+                        <h5 class="mb-3">Enter Payment Details (Simulated)</h5>
+                        <div class="mb-3">
+                            <label for="cardNumber" class="form-label">Card Number</label>
+                            <input type="text" class="form-control" id="cardNumber" placeholder="**** **** **** ****" minlength="16" maxlength="16">
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="expiryDate" class="form-label">Expiry Date</label>
+                                <input type="text" class="form-control" id="expiryDate" placeholder="MM/YY" minlength="5" maxlength="5">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="cvv" class="form-label">CVV</label>
+                                <input type="text" class="form-control" id="cvv" placeholder="123" minlength="3" maxlength="4">
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 mt-3">Process Payment</button>
+                </form>
+
+                {# JavaScript for dynamic payment details display #}
+                {% block extra_js %}
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const paymentMethodSelect = document.getElementById('id_payment_method'); // Django form field ID
+                        const paymentDetailsDiv = document.getElementById('paymentDetails');
+
+                        // Initial check in case a value is pre-selected
+                        if (paymentMethodSelect.value === 'Credit Card') {
+                            paymentDetailsDiv.style.display = 'block';
+                        }
+
+                        paymentMethodSelect.addEventListener('change', function() {
+                            if (this.value === 'Credit Card') {
+                                paymentDetailsDiv.style.display = 'block';
+                            } else {
+                                paymentDetailsDiv.style.display = 'none';
+                            }
+                        });
+                    });
+                </script>
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,95 @@
+{% load custom_filters %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organization Dashboard - {{ organization.organization_name }}</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; background-color: #f4f7f6; }
+        .header { background-color: #007bff; color: white; padding: 15px 20px; border-radius: 8px 8px 0 0; display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { margin: 0; font-size: 2em; }
+        .header nav a { color: white; text-decoration: none; margin-left: 20px; font-weight: bold; }
+        .header nav a:hover { text-decoration: underline; }
+        .container { max-width: 1000px; margin: 20px auto; background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .section-title { color: #333; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px; }
+        .org-details { display: flex; align-items: center; margin-bottom: 30px; }
+        .org-details img { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin-right: 20px; border: 2px solid #ddd; }
+        .org-info h2 { margin: 0 0 5px 0; color: #007bff; }
+        .org-info p { margin: 0 0 5px 0; color: #555; }
+        .status-badge { display: inline-block; padding: 5px 10px; border-radius: 15px; font-weight: bold; font-size: 0.9em; }
+        .status-badge.approved { background-color: #d4edda; color: #28a745; }
+        .status-badge.pending { background-color: #fff3cd; color: #ffc107; }
+        .status-badge.rejected { background-color: #f8d7da; color: #dc3545; }
+        .campaign-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .summary-card { background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 20px; text-align: center; }
+        .summary-card h3 { margin-top: 0; color: #007bff; }
+        .summary-card p { font-size: 2em; font-weight: bold; color: #333; margin: 5px 0; }
+        .messages { list-style-type: none; padding: 0; margin-bottom: 20px; }
+        .messages li {
+            padding: 10px 15px; border-radius: 5px; margin-bottom: 10px;
+            font-weight: bold;
+        }
+        .messages .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .messages .warning { background-color: #fff3cd; color: #856404; border: 1px solid #ffc107; }
+        .messages .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>{{ organization.organization_name }} Dashboard</h1>
+        <nav>
+            <a href="{% url 'organization_dashboard:dashboard' %}">Dashboard</a>
+            <a href="{% url 'organization_dashboard:campaigns_pending_approval' %}">Pending Campaign Approvals</a>
+            <a href="{% url 'organization_dashboard:campaigns_managed' %}">Managed Campaigns</a>
+            <a href="{% url 'organization_auth:logout' %}">Logout</a>
+        </nav>
+    </div>
+
+    <div class="container">
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        <h2 class="section-title">Organization Details</h2>
+        <div class="org-details">
+            {% if organization.logo %}
+                <img src="{{ organization.logo.url }}" alt="{{ organization.organization_name }} Logo">
+            {% else %}
+                <img src="https://via.placeholder.com/100?text=No+Logo" alt="No Logo">
+            {% endif %}
+            <div class="org-info">
+                <h2>{{ organization.organization_name }}</h2>
+                <p><strong>Status:</strong> <span class="status-badge {{ organization.status|lower|replace:" ,-" }}">{{ organization.status }}</span></p>
+                <p><strong>Contact Email:</strong> {{ organization.contact_email }}</p>
+                <p><strong>Phone:</strong> {{ organization.contact_phone|default:"N/A" }}</p>
+                <p><strong>Address:</strong> {{ organization.address|default:"N/A" }}</p>
+                <p><strong>Description:</strong> {{ organization.description|default:"N/A" }}</p>
+            </div>
+        </div>
+
+        <h2 class="section-title">Campaign Overview</h2>
+        <div class="campaign-summary">
+            <div class="summary-card">
+                <h3>Campaigns Awaiting Your Review</h3>
+                <p>{{ campaigns_pending_review.count }}</p>
+                <a href="{% url 'organization_dashboard:campaigns_pending_approval' %}">View Details</a>
+            </div>
+            <div class="summary-card">
+                <h3>Campaigns Managed by Your Org</h3>
+                <p>{{ approved_managed_campaigns.count }}</p>
+                <a href="{% url 'organization_dashboard:campaigns_managed' %}">View Details</a>
+            </div>
+            <div class="summary-card">
+                <h3>Campaigns Rejected by Your Org</h3>
+                <p>{{ rejected_campaigns_by_org.count }}</p>
+                <a href="#">View Details (Coming Soon)</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,43 @@
+{% extends 'core/base.html' %}
+
+{% block title %}My Campaigns{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">My Campaigns</h2>
+
+{% if campaigns %}
+    <div class="row">
+    {% for campaign in campaigns %}
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">{{ campaign.campaign_name }}</h5>
+                    <p class="card-text text-muted small">{{ campaign.description|truncatechars:100 }}</p>
+                    <ul class="list-group list-group-flush mb-3">
+                        <li class="list-group-item"><strong>Status:</strong> <span class="badge {% if campaign.status == 'Active' %}bg-success{% elif campaign.status == 'Pending Approval' %}bg-warning{% elif campaign.status == 'Rejected' %}bg-danger{% elif campaign.status == 'Completed' %}bg-primary{% endif %}">{{ campaign.status }}</span></li>
+                        <li class="list-group-item"><strong>Target:</strong> ${{ campaign.target_amount|floatformat:2 }}</li>
+                        <li class="list-group-item"><strong>Current:</strong> ${{ campaign.current_amount|floatformat:2 }}</li>
+                    </ul>
+                    <div class="mt-auto">
+                        <a href="{% url 'view_campaign_details' campaign.id %}" class="btn btn-sm btn-info me-2">View Details</a>
+                        {% if campaign.status == 'Pending Approval' or campaign.status == 'Rejected' %}
+                            <a href="{% url 'edit_campaign' campaign.id %}" class="btn btn-sm btn-warning me-2">Edit & Resubmit</a>
+                        {% endif %}
+                        {% if campaign.status == 'Active' %}
+                            <a href="{% url 'post_campaign_update' campaign.id %}" class="btn btn-sm btn-secondary me-2">Post Update</a>
+                        {% endif %}
+                        {% if campaign.status == 'Rejected' and campaign.rejection_reason %}
+                            <p class="text-danger small mt-2"><strong>Reason for Rejection:</strong> {{ campaign.rejection_reason }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+    </div>
+{% else %}
+    <div class="alert alert-info" role="alert">
+        You haven't created any campaigns yet. <a href="{% url 'create_campaign' %}" class="alert-link">Start a new campaign now!</a>
+    </div>
+{% endif %}
+{% endblock %}

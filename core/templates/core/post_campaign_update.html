@@ -1,0 +1,29 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Post Update for {{ campaign.campaign_name }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-header bg-secondary text-white">
+                <h3 class="mb-0">Post Update for "{{ campaign.campaign_name }}"</h3>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Update Title</label>
+                        <input type="text" class="form-control" id="title" name="title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="content" class="form-label">Update Content</label>
+                        <textarea class="form-control" id="content" name="content" rows="6" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-secondary w-100">Post Update</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

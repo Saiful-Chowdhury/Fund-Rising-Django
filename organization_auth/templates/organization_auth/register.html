@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Your Organization</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        .container { max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; box-shadow: 2px 2px 8px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #333; }
+        form div { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input[type="text"], input[type="email"], input[type="password"], textarea {
+            width: calc(100% - 22px); padding: 10px; border: 1px solid #ddd; border-radius: 4px;
+        }
+        input[type="file"] { padding: 5px 0; }
+        button {
+            background-color: #007bff; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px;
+        }
+        button:hover { background-color: #0056b3; }
+        .errorlist { color: red; list-style-type: none; padding: 0; margin-top: 5px; }
+        .helptext { font-size: 0.9em; color: #666; margin-top: 5px; }
+        .messages { list-style-type: none; padding: 0; margin-bottom: 20px; }
+        .messages li { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; padding: 10px; border-radius: 5px; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Register Your Organization</h1>
+
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            {% for field in form %}
+                <div>
+                    {{ field.label_tag }}
+                    {{ field }}
+                    {% if field.help_text %}<p class="helptext">{{ field.help_text }}</p>{% endif %}
+                    {% if field.errors %}<ul class="errorlist">{% for error in field.errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+                </div>
+            {% endfor %}
+
+            <button type="submit">Submit Registration</button>
+        </form>
+        <p>Already have an account? <a href="{% url 'organization_auth:login' %}">Log In</a></p>
+    </div>
+</body>
+</html>

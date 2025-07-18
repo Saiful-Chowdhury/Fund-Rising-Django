@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Submitted</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; text-align: center; }
+        .container { max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; box-shadow: 2px 2px 8px rgba(0,0,0,0.1); }
+        h1 { color: #28a745; }
+        p { margin-bottom: 15px; }
+        a { color: #007bff; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Registration Submitted Successfully!</h1>
+        <p>Thank you for registering your organization. Your request has been submitted and is now awaiting approval from our site administrators.</p>
+        <p>You will be notified once your organization's status has been reviewed.</p>
+        <p><a href="{% url 'organization_auth:login' %}">You can try logging in to check your status.</a></p>
+        <p><a href="/">Go to Home</a></p>
+    </div>
+</body>
+</html>

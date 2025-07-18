@@ -1,0 +1,78 @@
+{% load custom_filters %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review Campaign: {{ campaign.campaign_name }}</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; background-color: #f4f7f6; }
+        .header { background-color: #007bff; color: white; padding: 15px 20px; border-radius: 8px 8px 0 0; display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { margin: 0; font-size: 2em; }
+        .header nav a { color: white; text-decoration: none; margin-left: 20px; font-weight: bold; }
+        .header nav a:hover { text-decoration: underline; }
+        .container { max-width: 800px; margin: 20px auto; background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .section-title { color: #333; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px; }
+        .campaign-details p { margin-bottom: 10px; }
+        .campaign-details strong { color: #333; }
+        form div { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input[type="radio"] { margin-right: 10px; }
+        textarea { width: calc(100% - 22px); padding: 10px; border: 1px solid #ddd; border-radius: 4px; resize: vertical; }
+        button {
+            background-color: #007bff; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; margin-top: 10px;
+        }
+        button:hover { background-color: #0056b3; }
+        .errorlist { color: red; list-style-type: none; padding: 0; margin-top: 5px; }
+        .helptext { font-size: 0.9em; color: #666; margin-top: 5px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Organization Dashboard</h1>
+        <nav>
+            <a href="{% url 'organization_dashboard:dashboard' %}">Dashboard</a>
+            <a href="{% url 'organization_dashboard:campaigns_pending_approval' %}">Pending Campaign Approvals</a>
+            <a href="{% url 'organization_dashboard:campaigns_managed' %}">Managed Campaigns</a>
+            <a href="{% url 'organization_auth:logout' %}">Logout</a>
+        </nav>
+    </div>
+
+    <div class="container">
+        <h2 class="section-title">Review Campaign: {{ campaign.campaign_name }}</h2>
+
+        <div class="campaign-details">
+            <p><strong>Description:</strong> {{ campaign.description }}</p>
+            <p><strong>Campaign Manager:</strong> {{ campaign.campaign_manager.username }}</p>
+            <p><strong>Target Amount:</strong> ${{ campaign.target_amount|floatformat:2 }}</p>
+            <p><strong>Current Amount:</strong> ${{ campaign.current_amount|floatformat:2 }}</p>
+            <p><strong>Start Date:</strong> {{ campaign.start_date|date:"M d, Y" }}</p>
+            <p><strong>End Date:</strong> {{ campaign.end_date|date:"M d, Y" }}</p>
+            <p><strong>Current Main Status:</strong> {{ campaign.status }}</p>
+            <p><strong>Current Organization Approval Status:</strong> {{ campaign.organization_approval_status }}</p>
+        </div>
+
+        <h3 class="section-title">Your Decision</h3>
+        <form method="post">
+            {% csrf_token %}
+
+            {% for field in form %}
+                <div>
+                    {{ field.label_tag }}
+                    {% if field.field.widget.input_type == 'radio' %}
+                        {% for radio in field %}
+                            {{ radio.tag }} {{ radio.choice_label }}<br>
+                        {% endfor %}
+                    {% else %}
+                        {{ field }}
+                    {% endif %}
+                    {% if field.help_text %}<p class="helptext">{{ field.help_text }}</p>{% endif %}
+                    {% if field.errors %}<ul class="errorlist">{% for error in field.errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+                </div>
+            {% endfor %}
+
+            <button type="submit">Submit Decision</button>
+        </form>
+    </div>
+</body>
+</html>

@@ -1,0 +1,96 @@
+{% load custom_filters %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ list_title }}</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; background-color: #f4f7f6; }
+        .header { background-color: #007bff; color: white; padding: 15px 20px; border-radius: 8px 8px 0 0; display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { margin: 0; font-size: 2em; }
+        .header nav a { color: white; text-decoration: none; margin-left: 20px; font-weight: bold; }
+        .header nav a:hover { text-decoration: underline; }
+        .container { max-width: 1000px; margin: 20px auto; background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .section-title { color: #333; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #f2f2f2; color: #333; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        tr:hover { background-color: #f1f1f1; }
+        .action-button { background-color: #28a745; color: white; padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; text-decoration: none; display: inline-block; font-size: 0.9em; }
+        .action-button:hover { background-color: #218838; }
+        .status-badge { display: inline-block; padding: 5px 10px; border-radius: 15px; font-weight: bold; font-size: 0.8em; }
+        .status-badge.pending-organization-review { background-color: #fff3cd; color: #ffc107; }
+        .status-badge.approved-by-organization { background-color: #d4edda; color: #28a745; }
+        .status-badge.rejected-by-organization { background-color: #f8d7da; color: #dc3545; }
+        .status-badge.n-a { background-color: #e2e3e5; color: #6c757d; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Organization Dashboard</h1>
+        <nav>
+            <a href="{% url 'organization_dashboard:dashboard' %}">Dashboard</a>
+            <a href="{% url 'organization_dashboard:campaigns_pending_approval' %}">Pending Campaign Approvals</a>
+            <a href="{% url 'organization_dashboard:campaigns_managed' %}">Managed Campaigns</a>
+            <a href="{% url 'organization_auth:logout' %}">Logout</a>
+        </nav>
+    </div>
+
+    <div class="container">
+        <h2 class="section-title">{{ list_title }}</h2>
+
+        {% if campaigns %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Campaign Name</th>
+                        <th>Campaign Manager</th>
+                        <th>Target Amount</th>
+                        <th>Current Amount</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        {% if show_approval_status %}
+                            <th>Org Approval Status</th>
+                        {% else %}
+                            <th>Main Status</th>
+                        {% endif %}
+                        <th>Created At</th>
+                        {% if action_url_name %}
+                            <th>Action</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for campaign in campaigns %}
+                        <tr>
+                            <td>{{ campaign.campaign_name }}</td>
+                            <td>{{ campaign.campaign_manager.username }}</td>
+                            <td>${{ campaign.target_amount|floatformat:2 }}</td>
+                            <td>${{ campaign.current_amount|floatformat:2 }}</td>
+                            <td>{{ campaign.start_date|date:"M d, Y" }}</td>
+                            <td>{{ campaign.end_date|date:"M d, Y" }}</td>
+                            <td>
+                                {% if show_approval_status %}
+                                 <span class="status-badge {{ campaign.organization_approval_status|lower|replace:" ,-" }}">{{ campaign.organization_approval_status }}</span>
+                                {% else %}
+                                    {{ campaign.status }}
+                                {% endif %}
+                            </td>
+                            <td>{{ campaign.created_at|date:"M d, Y" }}</td>
+                            {% if action_url_name %}
+                                <td>
+                                    <a href="{% url action_url_name pk=campaign.pk %}" class="action-button">Review</a>
+                                </td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No campaigns to display in this list.</p>
+        {% endif %}
+    </div>
+</body>
+</html>

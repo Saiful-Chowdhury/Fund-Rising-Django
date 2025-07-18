@@ -1,0 +1,58 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2 class="mb-4">Welcome, {{ user.username }}!</h2>
+        <p class="lead">Your Role: <span class="badge bg-info">{{ user_role }}</span></p>
+
+        {% if user_role == 'Campaign Manager' %}
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Campaign Manager Actions</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">Manage your campaigns, create new ones, and post updates.</p>
+                    <a href="{% url 'create_campaign' %}" class="btn btn-success me-2">Create New Campaign</a>
+                    {% comment %} <a href="{% url 'my_campaigns' %} class="btn btn-outline-success">List My Campaigns</a> {% endcomment %}
+                    <a href="{% url 'my_campaigns' %}" class="btn btn-info">My Campaigns</a>
+                </div>
+            </div>
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Campaign Updates</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">Post important updates to your active campaigns.</p>
+                    <a href="#" class="btn btn-info">Post Campaign Update</a>
+                </div>
+            </div>
+        {% elif user_role == 'Donor' %}
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Donor Actions</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">Explore active campaigns and make a difference with your donations.</p>
+                    {% comment %} <a href="#" class="btn btn-primary">List Active Campaigns</a> {% endcomment %}
+                     <p><a href="{% url 'list_active_campaigns' %}" class="btn btn-primary">View All Active Campaigns</a></p>
+                </div>
+            </div>
+        {% elif user_role == 'Admin' %}
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">Admin Actions</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">Review submitted campaigns, monitor donations, and generate reports.</p>
+                    <a href="#" class="btn btn-danger me-2">Review Submitted Campaigns</a>
+                    <a href="#" class="btn btn-outline-danger">Monitor Donations & Campaigns</a>
+                    <a href="#" class="btn btn-dark">Generate Reports</a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,30 @@
+<div class="container mt-4">
+    <h2>Active Campaigns</h2>
+    {% if campaigns %}
+        <div class="row">
+            {% for campaign in campaigns %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ campaign.campaign_name }}</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">Manager: {{ campaign.campaign_manager.username }}</h6>
+                            <p class="card-text">{{ campaign.description|truncatechars:100 }}</p>
+                            <p class="card-text">
+                                **Target: ${{ campaign.target_amount|floatformat:2 }}** <br>
+                                **Raised: ${{ campaign.current_amount|floatformat:2 }}**
+                            </p>
+                            <div class="progress mb-2">
+                                <div class="progress-bar" role="progressbar" style="width: {{ campaign.progress_percentage }}%;" aria-valuenow="{{ campaign.progress_percentage }}" aria-valuemin="0" aria-valuemax="100">
+                                    {{ campaign.progress_percentage }}%
+                                </div>
+                            </div>
+                            <a href="{% url 'view_campaign_details' campaign.id %}" class="btn btn-primary mt-3">View Details & Donate</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No active campaigns at the moment.</p>
+    {% endif %}
+</div>
