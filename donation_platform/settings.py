@@ -71,7 +71,7 @@ INSTALLED_APPS = [
 
 # donation_platform/donation_platform/settings.py
 
-DEBUG = False # Keep this True for development for now
+DEBUG = True # Keep this True for development for now
 
 ALLOWED_HOSTS = [
     '127.0.0.1', # For local development

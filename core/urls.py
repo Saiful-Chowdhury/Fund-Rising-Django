@@ -17,8 +17,8 @@ urlpatterns = [
 
     # Donor URLs
     path('campaigns/active/', views.list_active_campaigns, name='list_active_campaigns'),
-    path('campaigns/<int:campaign_id>/', views.view_campaign_details, name='view_campaign_details'), # Renamed for clarity
-    path('campaigns/<int:campaign_id>/donate/', views.donate_to_campaign, name='donate_to_campaign'), # Renamed for clarity
+    path('campaigns/<int:campaign_id>/', views.campaign_details, name='campaign_details'), # Renamed for clarity
+    path('campaigns/<int:campaign_id>/donate/', views.donate_to_campaign, name='donate'), # Renamed for clarity
 
     # Admin URLs
     path('admin/review-campaigns/', views.admin_review_submitted_campaigns, name='admin_review_submitted_campaigns'),

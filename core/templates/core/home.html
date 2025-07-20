@@ -4,13 +4,13 @@
 
 {% block content %}
 <div class="jumbotron text-center">
-    <h1 class="display-4">Welcome to the Donation Platform!</h1>
+    <h1 class="display-4">Welcome to the Fund Riser!</h1>
     <p class="lead">Connect with causes, manage campaigns, and make a difference.</p>
     <hr class="my-4">
     <p>Join us to support various initiatives or manage your own fundraising efforts.</p>
-    <p class="lead">
-        <a class="btn btn-primary btn-lg me-2" href="{% url 'register' %}" role="button">Register Now</a>
-        <a class="btn btn-outline-secondary btn-lg" href="{% url 'login' %}" role="button">Login</a>
-    </p>
+    <p class="lead mt-4">
+    <a class="btn btn-lg me-3" style="background-color: #15803D; border-color: #15803D; color: white;" href="{% url 'register' %}" role="button">Register Now</a>
+    <a class="btn btn-lg me-3" style="background-color: #c70e0eff; border-color: #cf1a1aff; color: white;" href="{% url 'login' %}" role="button">Login</a>
+</p>
 </div>
 {% endblock %}

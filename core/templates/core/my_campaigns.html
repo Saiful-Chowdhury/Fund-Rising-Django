@@ -19,7 +19,7 @@
                         <li class="list-group-item"><strong>Current:</strong> ${{ campaign.current_amount|floatformat:2 }}</li>
                     </ul>
                     <div class="mt-auto">
-                        <a href="{% url 'view_campaign_details' campaign.id %}" class="btn btn-sm btn-info me-2">View Details</a>
+                        <a href="{% url 'campaign_details' campaign.id %}" class="btn btn-sm btn-info me-2">View Details</a>
                         {% if campaign.status == 'Pending Approval' or campaign.status == 'Rejected' %}
                             <a href="{% url 'edit_campaign' campaign.id %}" class="btn btn-sm btn-warning me-2">Edit & Resubmit</a>
                         {% endif %}

@@ -12,10 +12,25 @@
             <div class="card-body">
                 <form method="post">
                     {% csrf_token %}
-                    {{ form.as_p }} {# Renders fields from DonationForm #}
+                    
+                    {# Render specific form fields for better control and Bootstrap styling #}
+                    {% for field in form %}
+                        <div class="mb-3">
+                            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.help_text %}
+                                <div class="form-text">{{ field.help_text }}</div>
+                            {% endif %}
+                            {% for error in field.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
 
-                    <div id="paymentDetails" class="mt-3 card card-body" style="display: none;">
-                        <h5 class="mb-3">Enter Payment Details (Simulated)</h5>
+                    {# Payment Details Sections - Initially hidden #}
+
+                    <div id="creditCardDetails" class="mt-3 card card-body payment-details-panel" style="display: none;">
+                        <h5 class="mb-3">Enter Credit Card Details (Simulated)</h5>
                         <div class="mb-3">
                             <label for="cardNumber" class="form-label">Card Number</label>
                             <input type="text" class="form-control" id="cardNumber" placeholder="**** **** **** ****" minlength="16" maxlength="16">
@@ -31,7 +46,33 @@
                             </div>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-primary w-100 mt-3">Process Payment</button>
+
+                    <div id="mobileBankingDetails" class="mt-3 card card-body payment-details-panel" style="display: none;">
+                        <h5 class="mb-3">Enter Mobile Banking Details (Simulated)</h5>
+                        <p class="text-muted">Please send money to **01XXXXXXXXX** (Bkash/Nagad/Rocket). Your donation will be verified upon receiving the transaction ID.</p>
+                        <div class="mb-3">
+                            <label for="mobileNumber" class="form-label">Your Mobile Number</label>
+                            <input type="text" class="form-control" id="mobileNumber" placeholder="e.g., 017XXXXXXXX">
+                        </div>
+                        <div class="mb-3">
+                            <label for="transactionId" class="form-label">Transaction ID (TrxID)</label>
+                            <input type="text" class="form-control" id="transactionId" placeholder="e.g., ABC123XYZ or 8 character code">
+                        </div>
+                    </div>
+
+                    <div id="bankTransferDetails" class="mt-3 card card-body payment-details-panel" style="display: none;">
+                        <h5 class="mb-3">Bank Transfer Instructions (Simulated)</h5>
+                        <p>Please transfer the exact donation amount to the following account details:</p>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item"><strong>Bank Name:</strong> Awesome Giving Bank</li>
+                            <li class="list-group-item"><strong>Account Name:</strong> Donation Platform Fund</li>
+                            <li class="list-group-item"><strong>Account Number:</strong> 1234 5678 9012 3456</li>
+                            <li class="list-group-item"><strong>SWIFT/BIC:</strong> AWESBDDH</li>
+                        </ul>
+                        <p class="text-muted mt-3">Please ensure to include your username or donation ID in the transfer reference. Your donation will be confirmed upon successful transfer verification, which may take up to 24-48 hours.</p>
+                    </div>
+
+                    <button type="submit" class="btn btn-brand-primary w-100 mt-3">Process Payment</button>
                 </form>
 
                 {# JavaScript for dynamic payment details display #}
@@ -39,20 +80,31 @@
                 <script>
                     document.addEventListener('DOMContentLoaded', function() {
                         const paymentMethodSelect = document.getElementById('id_payment_method'); // Django form field ID
-                        const paymentDetailsDiv = document.getElementById('paymentDetails');
+                        const paymentPanels = document.querySelectorAll('.payment-details-panel'); // Select all custom payment panels
 
-                        // Initial check in case a value is pre-selected
-                        if (paymentMethodSelect.value === 'Credit Card') {
-                            paymentDetailsDiv.style.display = 'block';
+                        function showPaymentDetails(method) {
+                            paymentPanels.forEach(panel => {
+                                panel.style.display = 'none'; // Hide all panels first
+                            });
+
+                            if (method === 'Credit Card') {
+                                document.getElementById('creditCardDetails').style.display = 'block';
+                            } else if (method === 'Mobile Banking') {
+                                document.getElementById('mobileBankingDetails').style.display = 'block';
+                            } else if (method === 'Bank Transfer') {
+                                document.getElementById('bankTransferDetails').style.display = 'block';
+                            }
+                            // Add more conditions for other payment methods
                         }
 
-                        paymentMethodSelect.addEventListener('change', function() {
-                            if (this.value === 'Credit Card') {
-                                paymentDetailsDiv.style.display = 'block';
-                            } else {
-                                paymentDetailsDiv.style.display = 'none';
-                            }
-                        });
+                        // Initial check in case a value is pre-selected or page is reloaded
+                        if (paymentMethodSelect) { // Check if the select element exists
+                            showPaymentDetails(paymentMethodSelect.value);
+
+                            paymentMethodSelect.addEventListener('change', function() {
+                                showPaymentDetails(this.value);
+                            });
+                        }
                     });
                 </script>
                 {% endblock %}

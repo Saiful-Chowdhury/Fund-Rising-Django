@@ -115,6 +115,7 @@ class Campaign(models.Model):
         ('Pending Organization Review', 'Pending Organization Review'),
         ('Approved by Organization', 'Approved by Organization'),
         ('Rejected by Organization', 'Rejected by Organization'),
+        ('Active (Org)', 'Active (Organization Approved)'),
         ('N/A', 'N/A'), # For campaigns not needing org approval
     ]
     organization_approval_status = models.CharField(max_length=30, choices=ORG_APPROVAL_STATUS_CHOICES, default='N/A')

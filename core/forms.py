@@ -91,8 +91,27 @@ class CampaignForm(forms.ModelForm):
 
 
 class DonationForm(forms.ModelForm):
+    # Define your payment method choices
+    PAYMENT_METHOD_CHOICES = [
+        ('Card', 'Credit/Debit Card'),
+        ('Mobile Banking', 'Mobile Banking (e.g., Bkash, Nagad)'),
+        ('Bank Transfer', 'Bank Transfer'),
+        ('PayPal', 'PayPal'),
+        # Add more if needed
+    ]
+
+    # Add the payment_method field explicitly as a ChoiceField
+    # This overrides the default field Django would create from the model
+    payment_method = forms.ChoiceField(
+        choices=PAYMENT_METHOD_CHOICES,
+        label="Select Payment Method",
+        widget=forms.Select(attrs={'class': 'form-select'}) # Add Bootstrap class for styling
+    )
+
     class Meta:
         model = DonationTransaction
         fields = ['amount', 'payment_method']
-        # You might add fields for card number, expiry, CVV if processing directly,
-        # but typically this would be handled by a secure payment gateway.
+        # You can add widgets for other fields if you want custom styling for 'amount'
+        widgets = {
+            'amount': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter amount'}),
+        }

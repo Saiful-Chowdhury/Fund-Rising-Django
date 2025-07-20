@@ -161,7 +161,7 @@ def list_active_campaigns(request):
     return render(request, 'core/list_active_campaigns.html', {'campaigns': campaigns})
 
 @login_required
-def view_campaign_details(request, campaign_id):
+def campaign_details(request, campaign_id):
     campaign = get_object_or_404(Campaign, id=campaign_id)
     updates = CampaignUpdate.objects.filter(campaign=campaign).order_by('-posted_at')
     donations = DonationTransaction.objects.filter(campaign=campaign, transaction_status='Successful').order_by('-transaction_date')[:5] # Last 5 donations
@@ -223,7 +223,7 @@ def donate_to_campaign(request, campaign_id):
                         recipient=request.user,
                         message=f"Thank you for your donation of ${amount} to '{campaign.campaign_name}'!"
                     )
-                    return redirect('view_campaign_details', campaign_id=campaign.id)
+                    return redirect('campaign_details', campaign_id=campaign.id)
                 else:
                     DonationTransaction.objects.create(
                         campaign=campaign,

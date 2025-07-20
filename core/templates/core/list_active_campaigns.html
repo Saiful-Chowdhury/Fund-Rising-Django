@@ -1,3 +1,8 @@
+{% extends 'core/base.html' %}
+
+{% block title %}My Campaigns{% endblock %}
+
+{% block content %}
 <div class="container mt-4">
     <h2>Active Campaigns</h2>
     {% if campaigns %}
@@ -18,7 +23,7 @@
                                     {{ campaign.progress_percentage }}%
                                 </div>
                             </div>
-                            <a href="{% url 'view_campaign_details' campaign.id %}" class="btn btn-primary mt-3">View Details & Donate</a>
+                            <a href="{% url 'campaign_details' campaign.id %}" class="btn btn-primary mt-3">View Details & Donate</a>
                         </div>
                     </div>
                 </div>
@@ -28,3 +33,4 @@
         <p>No active campaigns at the moment.</p>
     {% endif %}
 </div>
+{% endblock %}
