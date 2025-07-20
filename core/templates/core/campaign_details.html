@@ -1,29 +1,111 @@
 {% extends 'core/base.html' %}
 
-{% block title %}Campaign Details{% endblock %}
+{% block title %}Campaign: {{ campaign.campaign_name }}{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card shadow">
+    <div class="col-md-10"> {# Increased column width for better readability #}
+        <div class="card shadow mb-4">
             <div class="card-header bg-info text-white">
-                <h3 class="mb-0">Campaign Details - Campaign ID: {{ campaign_id }}</h3>
+                <h3 class="mb-0">{{ campaign.campaign_name }}</h3>
+                <p class="mb-0">Managed by: {{ campaign.campaign_manager.username }}</p>
+                {% if campaign.organization %} {# Display organization if linked #}
+                    <p class="mb-0">Associated Organization: {{ campaign.organization.name }}</p>
+                {% endif %}
             </div>
             <div class="card-body">
-                <h4 class="card-title">Campaign Name Placeholder</h4>
-                <p class="card-text">Description of the campaign goes here. This is where detailed information about the campaign's purpose, goals, and impact will be displayed.</p>
+                <p class="card-text">{{ campaign.description }}</p>
                 <ul class="list-group list-group-flush mb-3">
-                    <li class="list-group-item"><strong>Target Amount:</strong> $10,000</li>
-                    <li class="list-group-item"><strong>Current Amount:</strong> $7,500</li>
-                    <li class="list-group-item"><strong>Progress:</strong> <div class="progress" style="height: 20px;"><div class="progress-bar bg-success" role="progressbar" style="width: 75%;" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">75%</div></div></li>
-                    <li class="list-group-item"><strong>Start Date:</strong> 2024-01-01</li>
-                    <li class="list-group-item"><strong>End Date:</strong> 2024-12-31</li>
-                    <li class="list-group-item"><strong>Status:</strong> Active</li>
+                    <li class="list-group-item"><strong>Target Amount:</strong> ${{ campaign.target_amount|floatformat:2 }}</li>
+                    <li class="list-group-item"><strong>Current Amount:</strong> ${{ campaign.current_amount|floatformat:2 }}</li>
+                    <li class="list-group-item"><strong>Progress:</strong>
+                        <div class="progress" style="height: 25px;">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: {{ campaign.progress_percentage }}%;" aria-valuenow="{{ campaign.progress_percentage }}" aria-valuemin="0" aria-valuemax="100">{{ campaign.progress_percentage }}%</div>
+                        </div>
+                    </li>
+                    <li class="list-group-item"><strong>Start Date:</strong> {{ campaign.start_date|date:"F d, Y" }}</li>
+                    {% if campaign.end_date %}<li class="list-group-item"><strong>Ends On:</strong> {{ campaign.end_date|date:"F d, Y" }}</li>{% endif %}
+                    <li class="list-group-item"><strong>Main Status:</strong> <span class="badge {% if campaign.status == 'Approved' %}bg-success{% elif campaign.status == 'Completed' %}bg-primary{% elif campaign.status == 'Rejected' %}bg-danger{% else %}bg-secondary{% endif %}">{{ campaign.status }}</span></li>
+                    {% if campaign.organization_approval_status and campaign.organization_approval_status != 'N/A' %}
+                        <li class="list-group-item"><strong>Organization Status:</strong> <span class="badge {% if campaign.organization_approval_status == 'Approved by Organization' or campaign.organization_approval_status == 'Active (Org)' %}bg-success{% elif campaign.organization_approval_status == 'Rejected by Organization' or campaign.organization_approval_status == 'Inactive (Org)' %}bg-danger{% else %}bg-warning{% endif %}">{{ campaign.organization_approval_status }}</span></li>
+                    {% endif %}
+                    {% if campaign.rejection_reason %}
+                        <li class="list-group-item text-danger"><strong>Rejection Reason:</strong> {{ campaign.rejection_reason }}</li>
+                    {% endif %}
+                    {% if campaign.organization_approval_comment %}
+                        <li class="list-group-item text-info"><strong>Organization Comment:</strong> {{ campaign.organization_approval_comment }}</li>
+                    {% endif %}
                 </ul>
-             <a href="{% url 'donate' campaign.id %}" class="btn btn-primary mt-3">Donate</a>
-                <a href="#" class="btn btn-outline-secondary mt-3">Back to Campaigns</a>
+
+                {# Action buttons based on campaign status and user role #}
+                {% if campaign.status == 'Approved' and user.is_authenticated and user.user_role == 'Donor' %}
+                    <a href="{% url 'donate_to_campaign' campaign.id %}" class="btn btn-brand-primary btn-lg mt-3">Donate Now</a>
+                {% elif campaign.status == 'Completed' %}
+                    <div class="alert alert-success mt-3" role="alert">
+                        This campaign has reached its target and is completed! Thank you to all donors.
+                    </div>
+                {% elif campaign.status == 'Rejected' %}
+                    <div class="alert alert-danger mt-3" role="alert">
+                        This campaign has been rejected by an administrator.
+                    </div>
+                {% elif campaign.status == 'Pending Organization Approval' and user.is_authenticated and user.user_role == 'Organization Admin' and user.organization == campaign.organization %}
+                    <div class="alert alert-warning mt-3" role="alert">
+                        This campaign is pending your organization's approval.
+                        <a href="{% url 'organization_review_campaign' campaign.id %}" class="btn btn-sm btn-warning ms-2">Review Campaign</a>
+                    </div>
+                {% elif campaign.status == 'Pending Admin Approval' and user.is_authenticated and user.user_role == 'Admin' %}
+                     <div class="alert alert-warning mt-3" role="alert">
+                        This campaign is pending Admin approval.
+                        <a href="{% url 'admin_approve_campaign' campaign.id %}" class="btn btn-sm btn-warning ms-2">Review Campaign</a>
+                    </div>
+                {% endif %}
+                    <a href="{% url 'donate' campaign.id %}" class="btn btn-primary mt-3">Donate</a>
+                <a href="{% url 'list_active_campaigns' %}" class="btn btn-outline-secondary mt-3">Back to Active Campaigns</a>
             </div>
         </div>
+
+        {# Campaign Updates Section #}
+        <div class="card shadow mt-4 mb-4">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Latest Updates</h5>
+            </div>
+            <div class="card-body">
+                {% if updates %}
+                    <ul class="list-group list-group-flush">
+                    {% for update in updates %}
+                        <li class="list-group-item">
+                            <h6>{{ update.title }} <small class="text-muted float-end">{{ update.posted_at|date:"F d, Y h:i A" }}</small></h6>
+                            <p>{{ update.content }}</p>
+                        </li>
+                    {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-muted">No updates yet for this campaign.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        {# Recent Donations Section #}
+        <div class="card shadow mb-4">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Recent Donations</h5>
+            </div>
+            <div class="card-body">
+                {% if donations %}
+                    <ul class="list-group list-group-flush">
+                    {% for donation in donations %}
+                        <li class="list-group-item">
+                            <strong>${{ donation.amount|floatformat:2 }}</strong> by {% if donation.donor_name %}{{ donation.donor_name }}{% else %}Anonymous{% endif %}
+                            <span class="float-end text-muted">{{ donation.transaction_date|timesince }} ago</span>
+                        </li>
+                    {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-muted">No donations yet for this campaign. Be the first to donate!</p>
+                {% endif %}
+            </div>
+        </div>
+
     </div>
 </div>
 {% endblock %}

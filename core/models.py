@@ -248,3 +248,10 @@ class AnalyticsData(models.Model):
 
     def __str__(self):
         return f"{self.event_type} by {self.user or self.ip_address} at {self.timestamp.strftime('%Y-%m-%d %H:%M')}"
+    
+@property
+def progress_percentage(self):
+    if self.target_amount and self.target_amount > 0: # Ensure target_amount is not zero or None
+        percentage = (self.current_amount / self.target_amount) * 100
+        return round(min(percentage, 100), 2) # Cap at 100% and round to 2 decimal places
+    return 0 # If target_amount is 0 or None, progress is 0
